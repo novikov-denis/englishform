@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Input Form</title>
+    <style>
+        .container {
+            width: 50%;
+            margin: auto;
+        }
+        .result {
+            white-space: pre-wrap;
+            background: #f4f4f4;
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Квиз – одиночный выбор</h1>
+        <form id="quiz-form">
+            <label for="quiz-content">Текст задания квиза:</label>
+            <textarea id="quiz-content" rows="4" cols="50"></textarea>
+            <br>
+            <label for="option1">Option 1:</label>
+            <input type="text" id="option1">
+            <br>
+            <label for="option2">Option 2:</label>
+            <input type="text" id="option2">
+            <br>
+            <label for="option3">Option 3:</label>
+            <input type="text" id="option3">
+            <br>
+            <button type="button" onclick="generateJson()">Generate JSON</button>
+        </form>
+        <h2>Result:</h2>
+        <div class="result" id="result"></div>
+        <button onclick="copyToClipboard()">Copy to Clipboard</button>
+    </div>
+
+    <script>
+        function generateUUID() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
+
+        function generateJson() {
+            const quizContent = document.getElementById('quiz-content').value;
+            const option1 = document.getElementById('option1').value;
+            const option2 = document.getElementById('option2').value;
+            const option3 = document.getElementById('option3').value;
+
+            const result = {
+                content: {
+                    options: [
+                        {
+                            id: generateUUID(),
+                            content: option1,
+                            correct: false,
+                            feedback: "",
+                            "feedback-positive": "",
+                            "feedback-negative": ""
+                        },
+                        {
+                            id: generateUUID(),
+                            content: option2,
+                            correct: false,
+                            feedback: "",
+                            "feedback-positive": "",
+                            "feedback-negative": ""
+                        },
+                        {
+                            id: generateUUID(),
+                            content: option3,
+                            correct: false,
+                            feedback: "",
+                            "feedback-positive": "",
+                            "feedback-negative": ""
+                        }
+                    ],
+                    type: "radio",
+                    id: generateUUID(),
+                    content: quizContent,
+                    blocking: true,
+                    show_all_feedback: false,
+                    result_text: "",
+                    button_text: "Узнать ответ"
+                },
+                type: "QuizSelect"
+            };
+
+            document.getElementById('result').innerText = JSON.stringify(result, null, 2);
+        }
+
+        function copyToClipboard() {
+            const result = document.getElementById('result');
+            const range = document.createRange();
+            range.selectNode(result);
+            window.getSelection().removeAllRanges();
+            window.getSelection().addRange(range);
+            document.execCommand('copy');
+            window.getSelection().removeAllRanges();
+            alert('Copied to clipboard');
+        }
+    </script>
+</body>
+</html>

@@ -18,6 +18,20 @@
         .option-group {
             margin-bottom: 10px;
         }
+        .quiz {
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        .quiz__content {
+            margin-bottom: 20px;
+        }
+        .quiz-form-choice__option {
+            margin-bottom: 10px;
+        }
+        .quiz-form-choice__option-content {
+            margin-left: 30px;
+        }
     </style>
 </head>
 <body>
@@ -34,6 +48,12 @@
                     <br>
                     <label for="feedback-1">Feedback:</label>
                     <input type="text" id="feedback-1">
+                    <br>
+                    <label for="feedback-positive-1">Feedback Positive:</label>
+                    <input type="text" id="feedback-positive-1">
+                    <br>
+                    <label for="feedback-negative-1">Feedback Negative:</label>
+                    <input type="text" id="feedback-negative-1">
                 </div>
             </div>
             <button type="button" onclick="addOption()">Add Option</button>
@@ -43,6 +63,8 @@
         <h2>Result:</h2>
         <div class="result" id="result"></div>
         <button onclick="copyToClipboard()">Copy to Clipboard</button>
+        <h2>Quiz Preview:</h2>
+        <div id="quiz-preview" class="quiz"></div>
     </div>
 
     <script>
@@ -66,6 +88,12 @@
                 <br>
                 <label for="feedback-${optionCount}">Feedback:</label>
                 <input type="text" id="feedback-${optionCount}">
+                <br>
+                <label for="feedback-positive-${optionCount}">Feedback Positive:</label>
+                <input type="text" id="feedback-positive-${optionCount}">
+                <br>
+                <label for="feedback-negative-${optionCount}">Feedback Negative:</label>
+                <input type="text" id="feedback-negative-${optionCount}">
             `;
             optionsContainer.appendChild(newOptionGroup);
         }
@@ -79,13 +107,15 @@
             for (let i = 0; i < optionGroups.length; i++) {
                 const optionContent = optionGroups[i].querySelector(`input[id^="option-"]`).value;
                 const feedbackContent = optionGroups[i].querySelector(`input[id^="feedback-"]`).value;
+                const feedbackPositiveContent = optionGroups[i].querySelector(`input[id^="feedback-positive-"]`).value;
+                const feedbackNegativeContent = optionGroups[i].querySelector(`input[id^="feedback-negative-"]`).value;
                 options.push({
                     id: generateUUID(),
                     content: optionContent,
                     correct: false,
                     feedback: feedbackContent,
-                    "feedback-positive": "",
-                    "feedback-negative": ""
+                    "feedback-positive": feedbackPositiveContent,
+                    "feedback-negative": feedbackNegativeContent
                 });
             }
 
@@ -104,6 +134,32 @@
             };
 
             document.getElementById('result').innerText = JSON.stringify(result, null, 2);
+            generateQuizPreview(result.content);
+        }
+
+        function generateQuizPreview(content) {
+            const quizPreview = document.getElementById('quiz-preview');
+            quizPreview.innerHTML = `
+                <div class="quiz__content">
+                    <div class="paragraph">${content.content}</div>
+                </div>
+                <fieldset class="quiz-form-choice quiz__group" role="radiogroup">
+                    ${content.options.map(option => `
+                        <div class="quiz-form-choice__option">
+                            <label class="quiz-form-choice__option-label">
+                                <div class="radio2">
+                                    <input type="radio" name="quiz" value="${option.id}">
+                                </div>
+                                <div class="quiz-form-choice__option-content">${option.content}</div>
+                                <div class="quiz-form-choice__feedback">${option.feedback}</div>
+                                <div class="quiz-form-choice__feedback-positive">${option["feedback-positive"]}</div>
+                                <div class="quiz-form-choice__feedback-negative">${option["feedback-negative"]}</div>
+                            </label>
+                        </div>
+                    `).join('')}
+                </fieldset>
+                <button>${content.button_text}</button>
+            `;
         }
 
         function copyToClipboard() {
